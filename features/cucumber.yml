@@ -1,0 +1,29 @@
+default: -f pretty -p dont_run -r features BROWSER_TYPE=chrome TEST_ENVIRONMENT=https://st.ssc.nwservicecenter.nwie.net/iApp/ssc
+#default: -f pretty -p dont_run -r features BROWSER_TYPE=chrome TEST_ENVIRONMENT=http://10.16.46.117:8080/iApp/ssc
+#default: -f pretty -p dont_run -r features BROWSER_TYPE=chrome TEST_ENVIRONMENT=http://nw971484:8080/iApp/ssc
+#default: -f pretty -p dont_run -r features BROWSER_TYPE=chrome TEST_ENVIRONMENT=http://localhost:8080/iApp/ssc
+dont_run: --tags ~@wip --tags ~@manual --tags ~@pdf --tags ~@uat_only --tags ~@wrong_release
+
+regression: -c -p generate_reports -p log_failures -p default
+parallel_regression_no_reports: -p parallel_failure_logging PARALLEL_TESTS=Y -p default
+parallel_regression: -p parallel_runtime_logging -p generate_reports -p parallel_failure_logging PARALLEL_TESTS=Y -p default
+regression_no_reports:  -p log_failures -p default
+
+generate_reports: -p html_report PRODUCE_ALL_REPORTS=true
+json_report: -f json -o cucumber_output<%= ENV['TEST_ENV_NUMBER'] %>.json
+html_report:  -f html -o features/output/runalltest<%= ENV['TEST_ENV_NUMBER'] %>.html
+log_failures: -f rerun -o logging_rerun.txt
+parallel_failure_logging: -f ParallelTests::Cucumber::FailuresLogger -o logging_rerun.txt
+parallel_runtime_logging: -f ParallelTests::Gherkin::RuntimeLogger -o features/output/cucumber_execution_times.log
+
+test_env_st: OVERIDE_TEST_ENVIRONMENT=https://st.ssc.nwservicecenter.nwie.net/iApp/ssc
+test_env_it: OVERIDE_TEST_ENVIRONMENT=https://it.ssc.nwservicecenter.nwie.net/iApp/ssc
+test_env_uat: OVERIDE_TEST_ENVIRONMENT=https://uat.ssc.nwservicecenter.nwie.net/iApp/ssc
+test_env_stg: OVERIDE_TEST_ENVIRONMENT=https://stg.ssc.nwservicecenter.nwie.net/iApp/ssc
+test_env_pt: OVERIDE_TEST_ENVIRONMENT=https://pt.ssc.nwservicecenter.nwie.net/iApp/ssc
+test_env_local: OVERIDE_TEST_ENVIRONMENT=http://localhost:8080/iApp/ssc
+
+firefox: OVERIDE_BROWSER_TYPE=firefox
+ie: OVERIDE_BROWSER_TYPE=ie
+chrome: OVERIDE_BROWSER_TYPE=chrome
+remote_execution: TEST_MACHINE=nw118533:4444 -p default
